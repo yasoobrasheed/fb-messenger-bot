@@ -66,5 +66,5 @@ func HandleRecievedMessageText(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Data received successfully"))
 
-	send_message.HandleSendMessageText(messaging.Recipient.ID)
+	send_message.HandleSendMessageText(messaging.Sender.ID)
 }

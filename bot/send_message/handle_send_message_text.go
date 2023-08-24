@@ -39,6 +39,7 @@ func HandleSendMessageText(recipientId string) {
 		},
 		Tag: "CONFIRMED_EVENT_UPDATE",
 	}
+
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		fmt.Println("Error marshalling request body:", err)
