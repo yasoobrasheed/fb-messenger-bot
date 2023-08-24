@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fbmessenger_bot/bot/received_message"
 	"fbmessenger_bot/secrets"
 	"fmt"
 	"io"
@@ -8,9 +9,6 @@ import (
 )
 
 func HandleWebhook(w http.ResponseWriter, r *http.Request) {
-	// Get insight into fb messenger's payload
-	logAndValidateRequest(w, r)
-
 	// fb messenger uses GET to establish this as an authorized webhook
 	if r.Method == http.MethodGet {
 		handleVerification(w, r)
@@ -18,11 +16,13 @@ func HandleWebhook(w http.ResponseWriter, r *http.Request) {
 
 	// fb messenger then uses POST to communicate with this server
 	if r.Method == http.MethodPost {
-		HandlePost()
+		received_message.HandleRecievedMessageText(w, r)
 	}
 }
 
 func handleVerification(w http.ResponseWriter, r *http.Request) {
+	logAndValidateRequest(w, r)
+
 	// Our verify token must match fb messenger's verify token
 	if secrets.VERIFY_TOKEN != r.URL.Query().Get("hub.verify_token") {
 		w.WriteHeader(http.StatusUnauthorized)
