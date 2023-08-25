@@ -1,11 +1,10 @@
 package received_message
 
 import (
-	"encoding/json"
 	"fbmessenger_bot/internal/bot/send_message"
 	"fbmessenger_bot/internal/processing"
+	"fbmessenger_bot/util"
 	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -41,16 +40,9 @@ type Message struct {
 }
 
 func HandleRecievedMessageText(w http.ResponseWriter, r *http.Request) {
-	requestBody, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-
 	var messageData MessageData
 
-	err = json.Unmarshal([]byte(requestBody), &messageData)
+	err := util.ParseAndUnmarshallRequestBody(r, &messageData)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

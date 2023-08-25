@@ -1,10 +1,9 @@
 package processing
 
 import (
-	"encoding/json"
 	"fbmessenger_bot/internal/bot/send_message"
+	"fbmessenger_bot/util"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 )
@@ -19,16 +18,9 @@ type Order struct {
 }
 
 func HandleOrderComplete(w http.ResponseWriter, r *http.Request) {
-	requestBody, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-
 	var orderData Order
 
-	err = json.Unmarshal([]byte(requestBody), &orderData)
+	err := util.ParseAndUnmarshallRequestBody(r, &orderData)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
