@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-	processing.HandleReceivedReview("It was such a good product, fit really nicely. Thank you!")
 	http.HandleFunc("/webhook", received_message.HandleWebhook)
 	http.HandleFunc("/order_complete", processing.HandleOrderComplete)
 
