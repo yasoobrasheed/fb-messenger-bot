@@ -2,7 +2,8 @@ package received_message
 
 import (
 	"encoding/json"
-	"fbmessenger_bot/bot/send_message"
+	"fbmessenger_bot/internal/bot/send_message"
+	"fbmessenger_bot/internal/processing"
 	"fmt"
 	"io"
 	"net/http"
@@ -57,14 +58,14 @@ func HandleRecievedMessageText(w http.ResponseWriter, r *http.Request) {
 
 	messaging := messageData.Entry[0].Messaging[0]
 
-	fmt.Println("Sender ID:", messaging.Sender.ID)
-	fmt.Println("Recipient ID:", messaging.Recipient.ID)
-	fmt.Println("Timestamp:", messaging.Timestamp)
-	fmt.Println("Text:", messaging.Message.Text)
+	// fmt.Println("Sender ID:", messaging.Sender.ID)
+	// fmt.Println("Recipient ID:", messaging.Recipient.ID)
+	// fmt.Println("Timestamp:", messaging.Timestamp)
+	// fmt.Println("Text:", messaging.Message.Text)
 
-	// Respond with a success message
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Data received successfully"))
 
-	send_message.HandleSendMessageText(messaging.Sender.ID)
+	messageText := processing.HandleReceivedReview(messaging.Message.Text)
+	send_message.HandleSendMessageText(messageText, messaging.Sender.ID)
 }

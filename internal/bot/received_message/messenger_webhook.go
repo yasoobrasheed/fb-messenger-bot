@@ -1,10 +1,7 @@
-package bot
+package received_message
 
 import (
-	"fbmessenger_bot/bot/received_message"
 	"fbmessenger_bot/secrets"
-	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -16,13 +13,11 @@ func HandleWebhook(w http.ResponseWriter, r *http.Request) {
 
 	// fb messenger then uses POST to communicate with this server
 	if r.Method == http.MethodPost {
-		received_message.HandleRecievedMessageText(w, r)
+		HandleRecievedMessageText(w, r)
 	}
 }
 
 func handleVerification(w http.ResponseWriter, r *http.Request) {
-	logAndValidateRequest(w, r)
-
 	// Our verify token must match fb messenger's verify token
 	if secrets.VERIFY_TOKEN != r.URL.Query().Get("hub.verify_token") {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -33,18 +28,4 @@ func handleVerification(w http.ResponseWriter, r *http.Request) {
 	challengeToken := r.URL.Query().Get("hub.challenge")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(challengeToken))
-}
-
-func logAndValidateRequest(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Method:", r.Method)
-	fmt.Println("URL:", r.URL)
-	fmt.Println("Headers:", r.Header)
-	fmt.Println("Challenge Token:", r.URL.Query().Get("hub.challenge"))
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
-		return
-	}
-	defer r.Body.Close()
-	fmt.Println("Body:", string(body))
 }

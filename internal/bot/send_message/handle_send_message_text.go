@@ -28,14 +28,14 @@ type RequestBody struct {
 	Tag           string    `json:"tag"`
 }
 
-func HandleSendMessageText(recipientId string) {
+func HandleSendMessageText(messageText string, recipientId string) {
 	url := buildPageUrl()
 
 	data := RequestBody{
 		Recipient:     Recipient{ID: recipientId},
 		MessagingType: "MESSAGE_TAG",
 		Message: Message{
-			Text: "Thank you for your message! Please give me a moment to gather your details.",
+			Text: messageText,
 		},
 		Tag: "CONFIRMED_EVENT_UPDATE",
 	}
