@@ -56,16 +56,19 @@ func HandleRecievedMessageText(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Write message to database and ensure only one review is written per order
 	messaging := messageData.Entry[0].Messaging[0]
-
-	// TODO: Write review to DB if this is the first response from the user
-
-	// fmt.Println("Sender ID:", messaging.Sender.ID)
-	// fmt.Println("Recipient ID:", messaging.Recipient.ID)
-	// fmt.Println("Timestamp:", messaging.Timestamp)
-	// fmt.Println("Text:", messaging.Message.Text)
-
-	// TODO: If not first response from user, send generic message to check site FAQ
+	userId := messaging.Sender.ID
+	if processing.UserReviewExists(messaging.Sender.ID) {
+		// TODO: make this some kind of backup message (or none at all)
+		return
+	} else {
+		userReview := make(map[string]interface{})
+		userReview["recipient_id"] = messaging.Recipient.ID
+		userReview["timestamp"] = messaging.Timestamp
+		userReview["text"] = messaging.Message.Text
+		processing.WriteUserReview(userId, userReview)
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Data received successfully"))
