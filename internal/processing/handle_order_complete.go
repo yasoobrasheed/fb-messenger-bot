@@ -36,13 +36,11 @@ func HandleOrderComplete(w http.ResponseWriter, r *http.Request) {
 
 func constructOrderDetailsText(orderData Order) string {
 	orderDetailsText := `
-		Order Completed:
-
 		` + orderData.ProductName + ` 
 
 		$` + fmt.Sprintf("%.2f", orderData.Price) + `
 
-		Estimated delivery date: ` + orderData.DeliveryDate + `
+		Delivered on: ` + orderData.DeliveryDate + `
 
 		See delivery details at: ` + orderData.DeliveryUrl + "/" + orderData.ID + `
 	`

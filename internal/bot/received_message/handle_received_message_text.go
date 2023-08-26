@@ -52,7 +52,6 @@ func HandleRecievedMessageText(w http.ResponseWriter, r *http.Request) {
 	messaging := messageData.Entry[0].Messaging[0]
 	userId := messaging.Sender.ID
 	if processing.UserReviewExists(messaging.Sender.ID) {
-		// TODO: make this some kind of backup message (or none at all)
 		return
 	} else {
 		userReview := make(map[string]interface{})
