@@ -1,12 +1,12 @@
 package processing
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/cdipaolo/sentiment"
 )
 
-func HandleReceivedReview(reviewText string) string {
+func HandleReceivedReview(reviewText string) (string, error) {
 	goodExperienceResponseText := `Thank you so much for your review of your purchase! We hope you love it. 
 								   Here's your 20% discount code: ` + generateCode()
 	badExperienceResponseText := `We're so sorry that you had a bad experience and want to make it up to you. 
@@ -15,18 +15,18 @@ func HandleReceivedReview(reviewText string) string {
 
 	model, err := sentiment.Restore()
 	if err != nil {
-		panic(fmt.Sprintf("Could not restore model!\n\t%v\n", err))
+		log.Printf("Could not restore model!\n\t%v\n", err)
+		return "", err
 	}
 	analysis := model.SentimentAnalysis(reviewText, sentiment.English)
 
 	if analysis.Score > 0 {
-		return goodExperienceResponseText
+		return goodExperienceResponseText, nil
 	} else {
-		return badExperienceResponseText
+		return badExperienceResponseText, nil
 	}
 }
 
 func generateCode() string {
-	// make this randomized & hash it to avoid collisions
 	return "G0F45TB04T5M0J1T05"
 }

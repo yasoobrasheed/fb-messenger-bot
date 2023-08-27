@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fbmessenger_bot/secrets"
-	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -28,9 +28,7 @@ type RequestBody struct {
 	Tag           string    `json:"tag"`
 }
 
-func HandleSendMessageText(messageText string, recipientId string) {
-	url := buildPageUrl()
-
+func HandleSendMessageText(messageText string, recipientId string) error {
 	data := RequestBody{
 		Recipient:     Recipient{ID: recipientId},
 		MessagingType: "MESSAGE_TAG",
@@ -42,26 +40,33 @@ func HandleSendMessageText(messageText string, recipientId string) {
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println("Error marshalling request body:", err)
-		return
+		return err
 	}
+
+	_, err = makeGraphAPIRequest(jsonData)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func makeGraphAPIRequest(jsonData []byte) (*http.Response, error) {
+	graphAPIUrl := buildGraphAPIUrl()
+
 	requestBody := bytes.NewBuffer(jsonData)
 
-	response, err := http.Post(url, "application/json", requestBody)
+	response, err := http.Post(graphAPIUrl, "application/json", requestBody)
 	if err != nil {
-		fmt.Println("Error posting message via Messenger API:", err)
-		return
+		log.Println("Error posting message via FB Graph API:", err)
+		return nil, err
 	}
 	defer response.Body.Close()
 
-	if response.StatusCode == http.StatusOK {
-		fmt.Println("POST request successful")
-	} else {
-		fmt.Println("POST request failed with status:", response.Status)
-	}
+	return response, nil
 }
 
-func buildPageUrl() string {
+func buildGraphAPIUrl() string {
 	messenger_api_url := "https://graph.facebook.com/v17.0/me/messages"
 	access_token_query_param := "?access_token=" + secrets.PAGE_ACCESS_TOKEN
 	return messenger_api_url + access_token_query_param

@@ -4,7 +4,7 @@ import (
 	"fbmessenger_bot/internal/bot/send_message"
 	"fbmessenger_bot/internal/processing"
 	"fbmessenger_bot/util"
-	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -39,20 +39,22 @@ type Message struct {
 	Text string `json:"text"`
 }
 
-func HandleRecievedMessageText(w http.ResponseWriter, r *http.Request) {
+func HandleRecievedMessageText(w http.ResponseWriter, r *http.Request) error {
 	var messageData MessageData
 
 	err := util.ParseAndUnmarshallRequestBody(r, &messageData)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		return err
 	}
+
+	w.WriteHeader(http.StatusOK)
 
 	// Write message to database and ensure only one review is written per order
 	messaging := messageData.Entry[0].Messaging[0]
 	userId := messaging.Sender.ID
 	if processing.UserReviewExists(messaging.Sender.ID) {
-		return
+		log.Printf("UserId %s has already written a review for this product and received a discount code.", userId)
+		return nil
 	} else {
 		userReview := make(map[string]interface{})
 		userReview["recipient_id"] = messaging.Recipient.ID
@@ -61,9 +63,14 @@ func HandleRecievedMessageText(w http.ResponseWriter, r *http.Request) {
 		processing.WriteUserReview(userId, userReview)
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Data received successfully"))
-
-	messageText := processing.HandleReceivedReview(messaging.Message.Text)
-	send_message.HandleSendMessageText(messageText, messaging.Sender.ID)
+	// Store review and respond to user
+	responseText, err := processing.HandleReceivedReview(messaging.Message.Text)
+	if err != nil {
+		return err
+	}
+	err = send_message.HandleSendMessageText(responseText, messaging.Sender.ID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

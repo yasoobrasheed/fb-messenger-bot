@@ -21,8 +21,9 @@ func HandleOrderComplete(w http.ResponseWriter, r *http.Request) {
 	var orderData Order
 
 	err := util.ParseAndUnmarshallRequestBody(r, &orderData)
+	// this err needs to throw a internal server error!
 	if err != nil {
-		fmt.Println("Error:", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -30,8 +31,16 @@ func HandleOrderComplete(w http.ResponseWriter, r *http.Request) {
 	askForReviewText := `Thank you so much for doing business with us, and we'd love to hear about your experience.
 						 You can write us a review right in this message window! As an added bonus, we'll send you a 20% off discount code.`
 
-	send_message.HandleSendMessageText(orderDetailsText, orderData.SenderId)
-	send_message.HandleSendMessageText(askForReviewText, orderData.SenderId)
+	err = send_message.HandleSendMessageText(orderDetailsText, orderData.SenderId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	err = send_message.HandleSendMessageText(askForReviewText, orderData.SenderId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func constructOrderDetailsText(orderData Order) string {
