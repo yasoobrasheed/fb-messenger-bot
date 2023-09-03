@@ -6,7 +6,15 @@ import (
 	"net/http"
 )
 
+// add constants
+const (
+	verifyTokenQueryParam = "hub.verify_token"
+	challengeQueryParam   = "hub.challenge"
+)
+
 func HandleWebhook(w http.ResponseWriter, r *http.Request) {
+	// write switch and throw error if not get or post
+
 	// fb messenger uses GET to establish this as an authorized webhook
 	if r.Method == http.MethodGet {
 		handleVerification(w, r)
@@ -14,7 +22,7 @@ func HandleWebhook(w http.ResponseWriter, r *http.Request) {
 
 	// fb messenger then uses POST to communicate with this server
 	if r.Method == http.MethodPost {
-		err := HandleRecievedMessageText(w, r)
+		err := HandleRecievedMessageText(w, r) // typo - received
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}

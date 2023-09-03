@@ -1,5 +1,7 @@
 package processing
 
+// write this as a struct
+// add mutexes to lock write and read not an issue bc no concurrency
 var userReviewTable map[string]map[string]interface{}
 
 func WriteUserReview(userId string, reviewValues map[string]interface{}) {

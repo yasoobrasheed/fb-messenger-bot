@@ -12,11 +12,6 @@ type Recipient struct {
 	ID string `json:"id"`
 }
 
-type Payload struct {
-	URL        string `json:"url"`
-	IsReusable bool   `json:"is_reusable"`
-}
-
 type Message struct {
 	Text string `json:"text"`
 }

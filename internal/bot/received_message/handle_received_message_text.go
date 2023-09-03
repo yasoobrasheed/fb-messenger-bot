@@ -45,17 +45,22 @@ func HandleRecievedMessageText(w http.ResponseWriter, r *http.Request) error {
 	err := util.ParseAndUnmarshallRequestBody(r, &messageData)
 	if err != nil {
 		return err
-	}
+	} // named return values
 
 	w.WriteHeader(http.StatusOK)
 
 	// Write message to database and ensure only one review is written per order
-	messaging := messageData.Entry[0].Messaging[0]
+	messaging := messageData.Entry[0].Messaging[0] // this is poorly written,, must validate first
 	userId := messaging.Sender.ID
 	if processing.UserReviewExists(messaging.Sender.ID) {
 		log.Printf("UserId %s has already written a review for this product and received a discount code.", userId)
 		return nil
 	} else {
+		// userReview := map[string]interface{}{
+		// 	"recipient_id": messagingData.Recipient.ID,
+		// 	"timestamp":    messagingData.Timestamp,
+		// 	"text":         messagingData.Message.Text,
+		// }
 		userReview := make(map[string]interface{})
 		userReview["recipient_id"] = messaging.Recipient.ID
 		userReview["timestamp"] = messaging.Timestamp
